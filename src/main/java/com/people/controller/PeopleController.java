@@ -2,17 +2,20 @@ package com.people.controller;
 
 import com.people.domain.dto.PeopleAssembler;
 import com.people.domain.dto.PeopleRequest;
-import com.people.domain.dto.PeopleResponse;
+import com.people.domain.entity.PeopleEntity;
 import com.people.repository.PeopleRepository;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/", produces = "application/json")
+@RequestMapping(produces = "application/json")
 public class PeopleController {
 
     private PeopleRepository peopleRepository;
@@ -24,22 +27,32 @@ public class PeopleController {
         this.peopleAssembler = peopleAssembler;
     }
 
-    @GetMapping("/people/{id}")
-    public ResponseEntity<PeopleResponse> getPeople(@PathVariable UUID id) {
+    @GetMapping("/pessoas/{id}")
+    public ResponseEntity<PeopleEntity> getPeople(@PathVariable UUID id) {
         return peopleRepository.findById(id)
-                .map(peopleAssembler::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @PostMapping("/pessoas")
     public ResponseEntity<?> postPeople(@RequestBody @Valid PeopleRequest peopleRequest) {
-        var savedPeople = peopleRepository.save(peopleAssembler.toEntity(peopleRequest));
-        return ResponseEntity.created(URI.create("/people/" + savedPeople.getId())).build();
+        try {
+            PeopleEntity saved = peopleRepository.save(peopleAssembler.toEntity(peopleRequest));
+            return ResponseEntity.created(URI.create("/pessoas/" + saved.getId())).build();
+        } catch (Exception e) {
+            return ResponseEntity.unprocessableEntity().body("Erro ao salvar pessoa");
+        }
+
     }
 
-    @GetMapping
+    @GetMapping("/contagem-pessoas")
     public ResponseEntity<?> findAll() {
-       return ResponseEntity.ok(peopleRepository.findAll().size());
+        return ResponseEntity.ok(peopleRepository.findAll().size());
     }
+
+    @GetMapping("/pessoas")
+    public ResponseEntity<List<PeopleEntity>> searchPessoas(@RequestParam("t") @NotNull @NotEmpty String t) {
+        return ResponseEntity.ok(peopleRepository.findAllBySearchTerm(t));
+    }
+
 }
