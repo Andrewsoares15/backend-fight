@@ -1,0 +1,20 @@
+version: '3.8'
+name: people-service
+
+services:
+  postgres:
+    image: postgres:latest
+    command: postgres -c 'max_connections=600'
+    user: postgres
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+    environment:
+      POSTGRES_DB: postgres_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
