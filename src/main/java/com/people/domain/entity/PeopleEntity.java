@@ -1,7 +1,6 @@
 package com.people.domain.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Cascade;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,22 +14,21 @@ public class PeopleEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "nick_name")
+    @Column(name = "nick_name", nullable = false, unique = true, length = 32)
     private String nickname;
 
-    @Column(name = "people_name")
+    @Column(name = "people_name", nullable = false, length = 100)
     private String name;
-    @Column(name = "dat_birth")
+    @Column(name = "dat_birth", nullable = false)
     private LocalDate dateNascimento;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    @JoinColumn(name = "people_id")
-    private List<StackEntity> stacks;
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "stacks")
+    private List<String> stacks;
 
     public PeopleEntity() {
     }
-    public PeopleEntity(String nickname, String name, LocalDate dateNascimento, List<StackEntity> stacks) {
+    public PeopleEntity(String nickname, String name, LocalDate dateNascimento, List<String> stacks) {
         this.nickname = nickname;
         this.name = name;
         this.dateNascimento = dateNascimento;
@@ -65,11 +63,11 @@ public class PeopleEntity {
         this.dateNascimento = dateNascimento;
     }
 
-    public List<StackEntity> getStacks() {
+    public List<String> getStacks() {
         return stacks;
     }
 
-    public void setStacks(List<StackEntity> stacks) {
+    public void setStacks(List<String> stacks) {
         this.stacks = stacks;
     }
 }

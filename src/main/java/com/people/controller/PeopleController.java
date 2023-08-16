@@ -18,9 +18,9 @@ import java.util.UUID;
 @RequestMapping(produces = "application/json")
 public class PeopleController {
 
-    private PeopleRepository peopleRepository;
+    private final PeopleRepository peopleRepository;
 
-    private PeopleAssembler peopleAssembler;
+    private final PeopleAssembler peopleAssembler;
 
     public PeopleController(PeopleRepository peopleRepository, PeopleAssembler peopleAssembler) {
         this.peopleRepository = peopleRepository;
