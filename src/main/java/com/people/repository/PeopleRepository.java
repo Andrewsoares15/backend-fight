@@ -13,13 +13,12 @@ public interface PeopleRepository extends JpaRepository<PeopleEntity, UUID> {
 
     @Query(
             nativeQuery = true,
-            value = "SELECT DISTINCT p.*" +
+            value = "SELECT p.*" +
                     " FROM PEOPLE p " +
-                    " INNER JOIN STACK ps ON p.id = ps.people_id " +
                     " WHERE " +
                     " LOWER(p.nick_name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
                     " LOWER(p.people_name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-                    " LOWER(ps.stack_name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+                    " LOWER(p.stacks) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
                     " LIMIT 50;"
     )
     List<PeopleEntity> findAllBySearchTerm(String searchTerm);

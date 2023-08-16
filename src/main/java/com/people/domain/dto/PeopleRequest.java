@@ -17,7 +17,7 @@ public record PeopleRequest (
      String nome,
 
     @NotNull(message = "Date of birth is required")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd", iso = DateTimeFormat.ISO.DATE)
      LocalDate nascimento,
      @Size(min = 1, message = "Stacks must be at least 1")
      List<@NotBlank @Size(max = 32) String> stack
