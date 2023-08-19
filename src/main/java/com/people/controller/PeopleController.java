@@ -7,6 +7,9 @@ import com.people.repository.PeopleRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +19,15 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(produces = "application/json")
+@CacheConfig(cacheNames = "people")
 public class PeopleController {
 
     private final PeopleRepository peopleRepository;
 
     private final PeopleAssembler peopleAssembler;
+
+    @Autowired
+    private RedisTemplate<String, PeopleEntity> redisTemplate;
 
     public PeopleController(PeopleRepository peopleRepository, PeopleAssembler peopleAssembler) {
         this.peopleRepository = peopleRepository;
@@ -29,6 +36,10 @@ public class PeopleController {
 
     @GetMapping("/pessoas/{id}")
     public ResponseEntity<PeopleEntity> getPeople(@PathVariable UUID id) {
+        PeopleEntity peopleCached = redisTemplate.opsForValue().get(id.toString());
+        if (peopleCached != null) {
+            return ResponseEntity.ok(peopleCached);
+        }
         return peopleRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -36,13 +47,14 @@ public class PeopleController {
 
     @PostMapping("/pessoas")
     public ResponseEntity<?> postPeople(@RequestBody @Valid PeopleRequest peopleRequest) {
-        try {
-            PeopleEntity saved = peopleRepository.save(peopleAssembler.toEntity(peopleRequest));
-            return ResponseEntity.created(URI.create("/pessoas/" + saved.getId())).build();
-        } catch (Exception e) {
-            return ResponseEntity.unprocessableEntity().body("Erro ao salvar pessoa");
+        if (redisTemplate.hasKey(peopleRequest.apelido())) {
+            return ResponseEntity.unprocessableEntity().body("Apelido já cadastrado");
         }
-
+        PeopleEntity entity = peopleAssembler.toEntity(peopleRequest);
+        redisTemplate.opsForValue().set(entity.getId().toString(), entity);
+        redisTemplate.opsForValue().set(entity.getNickname(), entity);
+        peopleRepository.save(entity);
+        return ResponseEntity.created(URI.create("/pessoas/" + entity.getId())).build();
     }
 
     @GetMapping("/contagem-pessoas")

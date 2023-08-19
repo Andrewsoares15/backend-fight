@@ -2,16 +2,16 @@ package com.people.domain.entity;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "PEOPLE")
-public class PeopleEntity {
+public class PeopleEntity implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(name = "nick_name", nullable = false, unique = true, length = 32)
@@ -28,7 +28,8 @@ public class PeopleEntity {
 
     public PeopleEntity() {
     }
-    public PeopleEntity(String nickname, String name, LocalDate dateNascimento, List<String> stacks) {
+    public PeopleEntity(UUID id, String nickname, String name, LocalDate dateNascimento, List<String> stacks) {
+        this.id = id;
         this.nickname = nickname;
         this.name = name;
         this.dateNascimento = dateNascimento;

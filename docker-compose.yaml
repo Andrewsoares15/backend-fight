@@ -15,8 +15,8 @@ services:
       - HIKARI_MAXIMUM_POOL_SIZE=250
       - HIKARI_MINIMUM_IDLE=20
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+      - redis
     deploy:
       resources:
         limits:
@@ -38,8 +38,8 @@ services:
       - HIKARI_MAXIMUM_POOL_SIZE=250
       - HIKARI_MINIMUM_IDLE=20
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+      - redis
     deploy:
       resources:
         limits:
@@ -62,7 +62,23 @@ services:
       resources:
         limits:
           cpus: '0.1'
-          memory: '0.1GB'
+          memory: '0.50GB'
+    networks:
+      - app-network
+
+  redis:
+    hostname: cache
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: '0.50GB'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
     networks:
       - app-network
 
@@ -87,7 +103,7 @@ services:
         window: 60s
       resources:
         limits:
-          cpus: '0.8'
+          cpus: '0.7'
           memory: '1.5GB'
     networks:
       - app-network
