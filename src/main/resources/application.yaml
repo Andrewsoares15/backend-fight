@@ -12,6 +12,9 @@ spring:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres_db?currentSchema=public}
     username: ${DATABASE_USERNAME:postgres}
     password: ${DATABASE_PASSWORD:postgres}
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
     hikari:
       auto-commit: false
       maximum-pool-size: ${HIKARI_MAXIMUM_POOL_SIZE:10}
@@ -30,3 +33,10 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: false
+
+  cache:
+    type: redis
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379

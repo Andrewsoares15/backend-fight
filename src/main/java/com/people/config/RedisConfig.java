@@ -1,7 +1,7 @@
 package com.people.config;
 
 
-import com.people.domain.entity.PeopleEntity;
+import com.people.entity.PeopleEntity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
